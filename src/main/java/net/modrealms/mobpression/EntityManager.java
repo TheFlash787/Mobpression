@@ -19,7 +19,7 @@ public class EntityManager {
         this.entityMap = new HashMap<>();
         loadData();
         /* Run the entitycheck task */
-        Task.builder().interval(1, TimeUnit.MINUTES).execute(new EntityCheck()).submit(Mobpression.getInstance());
+        Task.builder().execute(new EntityCheck()).interval(1, TimeUnit.MINUTES).async().submit(Mobpression.getInstance());
     }
 
     public void updateEntity(UUID uuid, int amount){
