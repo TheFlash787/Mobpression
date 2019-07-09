@@ -2,7 +2,7 @@
     {
         "modid": "mobpression",
         "name": "Mobpression",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "description": "Compressing mobs into a smaller problem.",
         "url": "https://modrealms.net",
         "authorList": [
