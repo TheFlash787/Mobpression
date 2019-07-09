@@ -14,7 +14,7 @@ import org.spongepowered.api.plugin.Plugin;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
-@Plugin(id = "mobpression", name = "Mobpression", version = "1.0")
+@Plugin(id = "mobpression", name = "Mobpression", version = "1.0.0")
 public class Mobpression {
 
     @Inject
