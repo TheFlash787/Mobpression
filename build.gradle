@@ -1,0 +1,43 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '4.0.4'
+    id 'org.spongepowered.plugin' version '0.9.0'
+}
+
+group 'net.modrealms.mobpression'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+    maven { url = "http://files.minecraftforge.net/maven" }
+}
+
+dependencies {
+    compile 'org.spongepowered:spongeapi:7.1.0'
+    shadow 'org.projectlombok:lombok:1.16.12'
+    shadow group:'org.xerial', name:'sqlite-jdbc', version:'3.8.11.2'
+}
+
+
+shadowJar {
+    configurations = [project.configurations.shadow]
+    baseName = 'Mobpression'
+    classifier = null
+    version = project.version
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+    minimize()
+}
+
+configurations {
+    compile.extendsFrom shadow
+}
+
+artifacts {
+    archives shadowJar
+}

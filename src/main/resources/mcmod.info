@@ -1,0 +1,15 @@
+[
+    {
+        "modid": "mobpression",
+        "name": "Mobpression",
+        "version": "1.0.0",
+        "description": "Compressing mobs into a smaller problem.",
+        "url": "https://modrealms.net",
+        "authorList": [
+            "TheFlash787",
+            "MaxIsHot"
+        ],
+        "requiredMods": [],
+        "dependencies": []
+    }
+]
