@@ -5,7 +5,8 @@ plugins {
 }
 
 group 'net.modrealms.mobpression'
-version '1.0.1-SNAPSHOT'
+version '1.0.2-SNAPSHOT'
+description 'Compressing mobs into a smaller problem.'
 
 sourceCompatibility = 1.8
 
