@@ -2,6 +2,7 @@ package net.modrealms.mobpression.events;
 
 import net.modrealms.mobpression.EntityManager;
 import net.modrealms.mobpression.Mobpression;
+import net.modrealms.mobpression.config.MainConfiguration;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
@@ -28,6 +29,8 @@ public class CompressionEvents {
 
     @Listener
     public void onCollideEntity(CollideEntityEvent event, @Root Living sourceEntity){
+        /* Check if the mob's type is in the blacklist */
+        if(MainConfiguration.General.compressionBlacklist.contains(sourceEntity.getType().getId())) return;
         /* We have a living entity, let's get a list of impacted entities of same type */
         Living master = sourceEntity;
         List<Entity> impactedSimilars = new ArrayList<>();
@@ -55,7 +58,7 @@ public class CompressionEvents {
         }
 
         /* Now let's update the entity's name */
-        if(entityManager.getEntityMap().containsKey(master.getUniqueId())){
+        if(entityManager.getEntityMap().containsKey(sourceEntity.getUniqueId())){
             updateEntityName(master, entityManager.getEntityMap().get(sourceEntity.getUniqueId()));
         }
     }

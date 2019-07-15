@@ -93,7 +93,7 @@ public class DatabaseHandler {
     }
 
     private void createIfNotExists() {
-        Path configPath = Mobpression.getInstance().getConfigDir();
+        Path configPath = Mobpression.getInstance().getConfigDir().toPath();
         if (!Files.exists(configPath)) {
             try {
                 Files.createDirectories(configPath);
