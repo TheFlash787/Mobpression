@@ -3,10 +3,12 @@ package net.modrealms.mobpression.events;
 import net.modrealms.mobpression.EntityManager;
 import net.modrealms.mobpression.Mobpression;
 import net.modrealms.mobpression.config.MainConfiguration;
+import org.spongepowered.api.Platform;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.Living;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSources;
@@ -18,6 +20,7 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import sun.applet.Main;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +32,16 @@ public class CompressionEvents {
 
     @Listener
     public void onCollideEntity(CollideEntityEvent event, @Root Living sourceEntity){
+        /* Check if it's a player, ignore if so */
+        if(sourceEntity instanceof Player) return;
         /* Check if the mob's type is in the blacklist */
         if(MainConfiguration.General.compressionBlacklist.contains(sourceEntity.getType().getId())) return;
         /* We have a living entity, let's get a list of impacted entities of same type */
         Living master = sourceEntity;
         List<Entity> impactedSimilars = new ArrayList<>();
         for(Entity entity : event.getEntities().stream().filter(e -> e instanceof Living).collect(Collectors.toList())){
+            /* Don't bother with players */
+            if(entity instanceof Player) continue;
             /* Only look if the entities are of the same type */
             if(sourceEntity.getType() != entity.getType()) continue;
             /* If the entity is in the map, that'll be the new source (master animal) */
@@ -46,6 +53,13 @@ public class CompressionEvents {
                 }
             }
             impactedSimilars.add(entity);
+        }
+
+        /* Now check the configuration for the impacted similars */
+        if(MainConfiguration.General.Minimum.enabled){
+            if(impactedSimilars.size() < MainConfiguration.General.Minimum.amount){
+                return;
+            }
         }
 
         /* Let's delete the impacted entity, and increment the map */
@@ -113,7 +127,7 @@ public class CompressionEvents {
     }
 
     private void updateEntityName(Living entity, int amount){
-        entity.offer(Keys.DISPLAY_NAME, Text.of(TextColors.GOLD, TextStyles.BOLD, "[", TextStyles.RESET, TextColors.YELLOW, "x", TextColors.LIGHT_PURPLE, amount, TextColors.GOLD, TextStyles.BOLD, "]"));
+        entity.offer(Keys.DISPLAY_NAME, Text.of(TextColors.GOLD, TextStyles.BOLD, "[", TextStyles.RESET, TextColors.YELLOW, "x", TextColors.LIGHT_PURPLE, amount, TextColors.GOLD, TextStyles.BOLD, "]", TextStyles.RESET, TextColors.WHITE, " ", entity.get(Keys.DISPLAY_NAME).orElse(Text.of(entity.getTranslation().get()))));
         entity.offer(Keys.CUSTOM_NAME_VISIBLE, true);
     }
 

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class DatabaseHandler {
-    private static final String path = "jdbc:sqlite:" + Mobpression.getInstance().getConfigDir().toURI().getPath() + "/storage.db";
+    private static final String path = "jdbc:sqlite:" + Mobpression.getInstance().getConfigDir().toURI().getPath() + "storage.db";
     private Connection connection;
     public DatabaseHandler() {
         try {
@@ -101,9 +101,9 @@ public class DatabaseHandler {
                 e.printStackTrace();
             }
         }
-        if(!Files.exists(Paths.get(configPath.toUri().getPath() + "/storage.db"))){
+        if(!Files.exists(Paths.get(configPath.toUri().getPath() + "storage.db"))){
             try {
-                Files.copy(Mobpression.class.getResourceAsStream("/storage.db"), Paths.get(configPath.toUri().getPath() + "/storage.db"));
+                Files.copy(Mobpression.class.getResourceAsStream("storage.db"), Paths.get(configPath.toUri().getPath() + "storage.db"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
