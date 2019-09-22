@@ -45,7 +45,7 @@ public class CompressionEvents {
         /* We have a living entity, let's get a list of impacted entities of same type */
         Living master = sourceEntity;
         List<Entity> impactedSimilars = new ArrayList<>();
-        for(Entity entity : event.getEntities().stream().filter(e -> e instanceof Living).collect(Collectors.toList())){
+        event.getEntities().stream().filter(e -> e instanceof Living).forEach((entity) -> {
             /* Don't bother with players */
             if(entity instanceof Player) continue;
             /* Only look if the entities are of the same type */
@@ -59,7 +59,7 @@ public class CompressionEvents {
                 }
             }
             impactedSimilars.add(entity);
-        }
+        });
 
         /* Now check the configuration for the impacted similars */
         if(MainConfiguration.General.Minimum.enabled){
