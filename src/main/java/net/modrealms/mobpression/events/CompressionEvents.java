@@ -3,6 +3,7 @@ package net.modrealms.mobpression.events;
 import net.modrealms.mobpression.EntityManager;
 import net.modrealms.mobpression.Mobpression;
 import net.modrealms.mobpression.config.MainConfiguration;
+import org.apache.commons.lang3.StringUtils;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
@@ -18,6 +19,7 @@ import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import sun.applet.Main;
@@ -35,7 +37,11 @@ public class CompressionEvents {
         /* Check if it's a player, ignore if so */
         if(sourceEntity instanceof Player) return;
         /* Check if the mob's type is in the blacklist */
-        if(MainConfiguration.General.compressionBlacklist.contains(sourceEntity.getType().getId())) return;
+        if(MainConfiguration.General.whitelistEnabled){
+            if(!MainConfiguration.General.compressionBlacklist.contains(sourceEntity.getType().getId())) return;
+        } else {
+            if(MainConfiguration.General.compressionBlacklist.contains(sourceEntity.getType().getId())) return;
+        }
         /* We have a living entity, let's get a list of impacted entities of same type */
         Living master = sourceEntity;
         List<Entity> impactedSimilars = new ArrayList<>();
@@ -58,6 +64,13 @@ public class CompressionEvents {
         /* Now check the configuration for the impacted similars */
         if(MainConfiguration.General.Minimum.enabled){
             if(impactedSimilars.size() < MainConfiguration.General.Minimum.amount){
+                return;
+            }
+        }
+
+        /* Now check the configuration for the impacted similars */
+        if(MainConfiguration.General.Maximum.enabled){
+            if(entityManager.getEntityMap().getOrDefault(master.getUniqueId(), 1) >= MainConfiguration.General.Maximum.amount){
                 return;
             }
         }
@@ -127,11 +140,11 @@ public class CompressionEvents {
     }
 
     private void updateEntityName(Living entity, int amount){
-        entity.offer(Keys.DISPLAY_NAME, Text.of(TextColors.GOLD, TextStyles.BOLD, "[", TextStyles.RESET, TextColors.YELLOW, "x", TextColors.LIGHT_PURPLE, amount, TextColors.GOLD, TextStyles.BOLD, "]", TextStyles.RESET, TextColors.WHITE, " ", entity.get(Keys.DISPLAY_NAME).orElse(Text.of(entity.getTranslation().get()))));
+        entity.offer(Keys.DISPLAY_NAME, TextSerializers.FORMATTING_CODE.deserialize(MainConfiguration.General.displayName.replace("{compression}", String.valueOf(amount)).replace("{name}", entity.getTranslation().get())));
         entity.offer(Keys.CUSTOM_NAME_VISIBLE, true);
     }
 
-    private void killEntity(Living entity){
+    private void killEntity(Entity entity){
         int delay = 0;
         while(delay == 0) {
             entity.damage(Integer.MAX_VALUE, DamageSources.GENERIC);

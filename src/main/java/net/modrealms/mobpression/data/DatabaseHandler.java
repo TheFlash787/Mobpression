@@ -20,12 +20,11 @@ public class DatabaseHandler {
     public DatabaseHandler() {
         try {
             createIfNotExists();
-            new JDBC();
-            connection = DriverManager.getConnection(path);
+            this.connection = DriverManager.getConnection(path);
+            createNewTable();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        createNewTable();
     }
 
     private void createNewTable() {
@@ -94,6 +93,7 @@ public class DatabaseHandler {
 
     private void createIfNotExists() {
         Path configPath = Mobpression.getInstance().getConfigDir().toPath();
+        Path dbPath = Paths.get(configPath.toUri() + "storage.db");
         if (!Files.exists(configPath)) {
             try {
                 Files.createDirectories(configPath);
@@ -101,12 +101,15 @@ public class DatabaseHandler {
                 e.printStackTrace();
             }
         }
-        if(!Files.exists(Paths.get(configPath.toUri().getPath() + "storage.db"))){
-            try {
-                Files.copy(Mobpression.class.getResourceAsStream("storage.db"), Paths.get(configPath.toUri().getPath() + "storage.db"));
-            } catch (IOException e) {
-                e.printStackTrace();
+        try (Connection conn = DriverManager.getConnection(path)) {
+            if (conn != null) {
+                DatabaseMetaData meta = conn.getMetaData();
+                System.out.println("The driver name is " + meta.getDriverName());
+                System.out.println("A new database has been created.");
             }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
     }
 }
