@@ -22,6 +22,7 @@ import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.extent.EntityUniverse;
 import sun.applet.Main;
 
 import java.util.ArrayList;
@@ -90,6 +91,39 @@ public class CompressionEvents {
         }
     }
 
+    private void checkAndRemove(Living sourceEntity, Location<World> location, DamageEntityEvent event) {
+        if (entityManager.getEntityMap().get(sourceEntity.getUniqueId()) > 1) {
+            /* Let's kill the entity, and respawn it */
+            int currentAmount = entityManager.getEntityMap().get(sourceEntity.getUniqueId());
+            /* Remove entity from the map */
+            entityManager.removeEntity(sourceEntity.getUniqueId());
+            /* Kill entity */
+            killEntity(sourceEntity);
+            /* Setup the new entity */
+            sourceEntity = (Living) location.createEntity(sourceEntity.getType());
+            /* Spawn the new entity */
+            location.spawnEntity(sourceEntity);
+            /* Update in map */
+            entityManager.updateEntity(sourceEntity.getUniqueId(), currentAmount);
+            /* Update the name */
+            updateEntityName(sourceEntity, entityManager.getEntityMap().get(sourceEntity.getUniqueId()));
+        } else if (entityManager.getEntityMap().get(sourceEntity.getUniqueId()) == 1) {
+            /* Let's kill the entity, and respawn it */
+            /* Remove entity from the map */
+            entityManager.removeEntity(sourceEntity.getUniqueId());
+            /* Kill entity */
+            killEntity(sourceEntity);
+            /* Setup the new entity */
+            sourceEntity = (Living) location.createEntity(sourceEntity.getType());
+            /* Spawn the new entity */
+            location.spawnEntity(sourceEntity);
+        } else {
+            /* None left, continue the event, kill the animal */
+            event.setCancelled(false);
+            entityManager.getEntityMap().remove(sourceEntity.getUniqueId());
+        }
+    }
+
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onEntityDamage(DamageEntityEvent event) {
         if (!(event.getTargetEntity() instanceof Living)) return;
@@ -103,36 +137,7 @@ public class CompressionEvents {
         /* If bossmode is enabled, kill them all and get their drops*/
         entityManager.updateEntity(sourceEntity.getUniqueId(), entityManager.getEntityMap().get(sourceEntity.getUniqueId()) - 1);
         if (MainConfiguration.General.bossMode) {
-            if (entityManager.getEntityMap().get(sourceEntity.getUniqueId()) > 1) {
-                /* Let's kill the entity, and respawn it */
-                int currentAmount = entityManager.getEntityMap().get(sourceEntity.getUniqueId());
-                /* Remove entity from the map */
-                entityManager.removeEntity(sourceEntity.getUniqueId());
-                /* Kill entity */
-                killEntity(sourceEntity);
-                /* Setup the new entity */
-                sourceEntity = (Living) location.createEntity(sourceEntity.getType());
-                /* Spawn the new entity */
-                location.spawnEntity(sourceEntity);
-                /* Update in map */
-                entityManager.updateEntity(sourceEntity.getUniqueId(), currentAmount);
-                /* Update the name */
-                updateEntityName(sourceEntity, entityManager.getEntityMap().get(sourceEntity.getUniqueId()));
-            } else if (entityManager.getEntityMap().get(sourceEntity.getUniqueId()) == 1) {
-                /* Let's kill the entity, and respawn it */
-                /* Remove entity from the map */
-                entityManager.removeEntity(sourceEntity.getUniqueId());
-                /* Kill entity */
-                killEntity(sourceEntity);
-                /* Setup the new entity */
-                sourceEntity = (Living) location.createEntity(sourceEntity.getType());
-                /* Spawn the new entity */
-                location.spawnEntity(sourceEntity);
-            } else {
-                /* None left, continue the event, kill the animal */
-                event.setCancelled(false);
-                entityManager.getEntityMap().remove(sourceEntity.getUniqueId());
-            }
+            checkAndRemove(sourceEntity, location, event);
         } else {
             while (entityManager.getEntityMap().get(sourceEntity.getUniqueId()) > 1) {
                 /* Let's kill the entity, and respawn it */
