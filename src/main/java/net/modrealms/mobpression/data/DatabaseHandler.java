@@ -19,7 +19,7 @@ public class DatabaseHandler {
     private Connection connection;
     public DatabaseHandler() {
         try {
-            createIfNotExists();
+            //createIfNotExists();
             this.connection = DriverManager.getConnection(path);
             createNewTable();
         } catch (SQLException e) {
