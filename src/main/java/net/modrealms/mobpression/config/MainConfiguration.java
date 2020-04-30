@@ -30,9 +30,11 @@ public class MainConfiguration {
 
     @ConfigSerializable
     public static class General {
-
         @Setting(value = "blacklist-into-whitelist", comment = "Turning this on will reverse the blacklist (into a whitelist) and only allow the mobs you specify to compress")
         public static boolean whitelistEnabled = false;
+
+        @Setting(value = "disable-all-death-messages", comment = "Turning this on will override the gamerule showDeathMessages and disable all compressed-mob death messages from showing.")
+        public static boolean disableDeathMessages = true;
 
         @Setting(value = "display-name", comment = "Use this to choose what the name above the head will look like")
         public static String displayName = "&6&l[&d{compression}x&6&l] &f{name}";

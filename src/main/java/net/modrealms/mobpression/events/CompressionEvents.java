@@ -15,6 +15,7 @@ import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSources;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
+import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
@@ -45,7 +46,7 @@ public class CompressionEvents {
         /* We have a living entity, let's get a list of impacted entities of same type */
         Living master = sourceEntity;
         List<Entity> impactedSimilars = new ArrayList<>();
-        event.getEntities().stream().filter(e -> e instanceof Living).forEach((entity) -> {
+        for(Entity entity : event.getEntities().stream().filter(e -> e instanceof Living).collect(Collectors.toList())){
             /* Don't bother with players */
             if(entity instanceof Player) continue;
             /* Only look if the entities are of the same type */
@@ -59,7 +60,7 @@ public class CompressionEvents {
                 }
             }
             impactedSimilars.add(entity);
-        });
+        }
 
         /* Now check the configuration for the impacted similars */
         if(MainConfiguration.General.Minimum.enabled){
@@ -139,8 +140,17 @@ public class CompressionEvents {
         }
     }
 
+    @Listener(order = Order.FIRST, beforeModifications = true)
+    public void onEntityDestruct(DestructEntityEvent.Death event){
+        if(MainConfiguration.General.disableDeathMessages){
+            if(entityManager.getEntityMap().containsKey(event.getTargetEntity().getUniqueId())){
+                event.setMessageCancelled(true);
+            }
+        }
+    }
+
     private void updateEntityName(Living entity, int amount){
-        entity.offer(Keys.DISPLAY_NAME, TextSerializers.FORMATTING_CODE.deserialize(MainConfiguration.General.displayName.replace("{compression}", String.valueOf(amount)).replace("{name}", entity.getTranslation().get())));
+        entity.offer(Keys.DISPLAY_NAME, TextSerializers.FORMATTING_CODE.deserialize(MainConfiguration.General.displayName.replace("{compression}", String.valueOf(amount)).replace("{name}", entity.getType().getTranslation().get())));
         entity.offer(Keys.CUSTOM_NAME_VISIBLE, true);
     }
 
